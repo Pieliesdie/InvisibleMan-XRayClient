@@ -7,6 +7,8 @@ namespace InvisibleManXRay.Managers.Initializers
     using Managers;
     using Handlers;
     using Factories;
+    using System.Windows.Media;
+    using System.Drawing;
 
     public class HandlersInitializer
     {
@@ -22,10 +24,8 @@ namespace InvisibleManXRay.Managers.Initializers
             HandlersManager.AddHandler(new ConfigHandler());
             HandlersManager.AddHandler(new ProxyHandler());
             HandlersManager.AddHandler(new TunnelHandler());
-            HandlersManager.AddHandler(new NotifyHandler());
             HandlersManager.AddHandler(new VersionHandler());
             HandlersManager.AddHandler(new UpdateHandler());
-            HandlersManager.AddHandler(new BroadcastHandler());
             HandlersManager.AddHandler(new LinkHandler());
         }
 
@@ -85,16 +85,6 @@ namespace InvisibleManXRay.Managers.Initializers
             {
                 SettingsHandler settingsHandler = handlersManager.GetHandler<SettingsHandler>();
 
-                handlersManager.GetHandler<NotifyHandler>().Setup(
-                    getMode: settingsHandler.UserSettings.GetMode,
-                    onOpenClick: OpenApplication,
-                    onUpdateClick: OpenUpdateWindow,
-                    onAboutClick: OpenAboutWindow,
-                    onCloseClick: CloseApplication,
-                    onProxyModeClick: () => { OnModeClick(Mode.PROXY); },
-                    onTunnelModeClick: () => { OnModeClick(Mode.TUN); }
-                );
-
                 bool IsAnotherWindowOpened() => Application.Current.Windows.Count > 1;
 
                 bool IsMainWindow(Window window) => window == Application.Current.MainWindow;
@@ -108,6 +98,12 @@ namespace InvisibleManXRay.Managers.Initializers
                         if (!IsMainWindow(window))
                             window.Close();
                     }
+                }
+
+                void Connect()
+                {
+                    MainWindow mainWindow = windowFactory.GetMainWindow();
+                    mainWindow.Run();
                 }
 
                 void OpenApplication()

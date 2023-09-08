@@ -59,6 +59,7 @@ namespace InvisibleManXRay.Models.Templates
             string DecodeBase64Link()
             {
                 string base64String = link.Split("@").FirstOrDefault().Replace("ss://", "");
+                base64String = base64String.Replace('-', '+').Replace('_', '/').PadRight(4 * ((base64String.Length + 3) / 4), '=');
                 byte[] dataBytes = Convert.FromBase64String(base64String);
                 
                 return Encoding.UTF8.GetString(dataBytes);

@@ -3,10 +3,12 @@ using System.Windows;
 
 namespace InvisibleManXRay
 {
+    using InvisibleManXRay.Windows;
+
     using Services;
     using Services.Analytics.PolicyWindow;
 
-    public partial class PolicyWindow : Window
+    public partial class PolicyWindow : BaseWindow
     {
         private Action onEmailClick;
 

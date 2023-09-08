@@ -48,6 +48,8 @@ namespace InvisibleManXRay.Services
 
         public void SendEvent(IEvent analyticsEvent, bool isForced = false)
         {
+            return;
+
             if (!IsSendingAnalytics())
                 return;
 

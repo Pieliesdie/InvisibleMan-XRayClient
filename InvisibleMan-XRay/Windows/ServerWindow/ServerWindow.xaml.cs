@@ -9,8 +9,9 @@ namespace InvisibleManXRay
     using Values;
     using Services;
     using Services.Analytics.ServerWindow;
+    using InvisibleManXRay.Windows;
 
-    public partial class ServerWindow : Window
+    public partial class ServerWindow : BaseWindow
     {
         private enum ImportingType { FILE, LINK };
 

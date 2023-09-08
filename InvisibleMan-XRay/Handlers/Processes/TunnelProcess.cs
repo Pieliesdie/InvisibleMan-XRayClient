@@ -94,8 +94,11 @@ namespace InvisibleManXRay.Handlers.Processes
         {
             try
             {
-                byte[] bytes = Encoding.ASCII.GetBytes(command + "<EOF>");
-                int bytesCount = sender.Send(bytes);
+                if (sender is not null)
+                {
+                    byte[] bytes = Encoding.ASCII.GetBytes(command + "<EOF>");
+                    int bytesCount = sender.Send(bytes);
+                }
 
                 return new Status(
                     code: Code.SUCCESS,

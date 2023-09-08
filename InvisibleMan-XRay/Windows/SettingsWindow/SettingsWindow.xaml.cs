@@ -6,11 +6,15 @@ using System.Windows.Controls;
 
 namespace InvisibleManXRay
 {
+    using InvisibleManXRay.Windows;
+
+    using MaterialDesignExtensions.Controls;
+
     using Models;
     using Services;
     using Services.Analytics.SettingsWindow;
 
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : BaseWindow
     {
         private static readonly Dictionary<Mode, string> Modes = new Dictionary<Mode, string>() {
             { Mode.PROXY, "Proxy" },
@@ -202,7 +206,7 @@ namespace InvisibleManXRay
                 logLevel: (LogLevel)comboBoxLogLevel.SelectedValue,
                 isUdpEnable: checkBoxEnableUdp.IsChecked.Value,
                 isRunningAtStartup: checkBoxRunAtStartup.IsChecked.Value,
-                isSendingAnalytics: checkBoxSendAnalytics.IsChecked.Value,
+                isSendingAnalytics: false, //checkBoxSendAnalytics.IsChecked.Value,
                 proxyPort: int.Parse(textBoxProxyPort.Text),
                 tunPort: int.Parse(textBoxTunPort.Text),
                 testPort: int.Parse(textBoxTestPort.Text),

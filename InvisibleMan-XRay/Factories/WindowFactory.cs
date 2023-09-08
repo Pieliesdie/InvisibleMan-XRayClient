@@ -6,12 +6,18 @@ namespace InvisibleManXRay.Factories
     using Models;
     using Managers;
     using Handlers;
+    using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using InvisibleManXRay.Utilities;
+    using System.Collections.Concurrent;
 
     public class WindowFactory
     {
         private InvisibleManXRayCore core;
         private HandlersManager handlersManager;
-
         public void Setup(InvisibleManXRayCore core, HandlersManager handlersManager)
         {
             this.core = core;
@@ -24,7 +30,6 @@ namespace InvisibleManXRay.Factories
         {
             ConfigHandler configHandler = handlersManager.GetHandler<ConfigHandler>();
             UpdateHandler updateHandler = handlersManager.GetHandler<UpdateHandler>();
-            BroadcastHandler broadcastHandler = handlersManager.GetHandler<BroadcastHandler>();
             SettingsHandler settingsHandler = handlersManager.GetHandler<SettingsHandler>();
             LinkHandler linkHandler = handlersManager.GetHandler<LinkHandler>();
 
@@ -35,7 +40,6 @@ namespace InvisibleManXRay.Factories
                 loadConfig: core.LoadConfig,
                 enableMode: core.EnableMode,
                 checkForUpdate: updateHandler.CheckForUpdate,
-                checkForBroadcast: broadcastHandler.CheckForBroadcast,
                 openServerWindow: CreateServerWindow,
                 openSettingsWindow: CreateSettingsWindow,
                 openUpdateWindow: CreateUpdateWindow,
@@ -50,7 +54,7 @@ namespace InvisibleManXRay.Factories
                 onBugReportingClick: linkHandler.OpenBugReportingLink,
                 onCustomLinkClick: linkHandler.OpenCustomLink
             );
-            
+
             return mainWindow;
 
             bool IsNeedToShowPolicyWindow() => settingsHandler.UserSettings.GetClientId() == "";
@@ -59,7 +63,6 @@ namespace InvisibleManXRay.Factories
         public SettingsWindow CreateSettingsWindow()
         {
             SettingsHandler settingsHandler = handlersManager.GetHandler<SettingsHandler>();
-            NotifyHandler notifyHandler = handlersManager.GetHandler<NotifyHandler>();
 
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.Setup(
@@ -84,7 +87,6 @@ namespace InvisibleManXRay.Factories
             void UpdateUserSettings(UserSettings userSettings)
             {
                 settingsHandler.UpdateUserSettings(userSettings);
-                notifyHandler.CheckModeItem(userSettings.GetMode());
                 GetMainWindow().TryDisableModeAndRerun();
             }
         }
@@ -137,7 +139,7 @@ namespace InvisibleManXRay.Factories
             TemplateHandler templateHandler = handlersManager.GetHandler<TemplateHandler>();
             SettingsHandler settingsHandler = handlersManager.GetHandler<SettingsHandler>();
             MainWindow mainWindow = GetMainWindow();
-            
+
             ServerWindow serverWindow = new ServerWindow();
             serverWindow.Setup(
                 getCurrentConfigIndex: settingsHandler.UserSettings.GetCurrentConfigIndex,
@@ -151,7 +153,7 @@ namespace InvisibleManXRay.Factories
                 onDeleteConfig: configHandler.LoadConfigFiles,
                 onUpdateConfig: UpdateConfig
             );
-            
+
             return serverWindow;
 
             void UpdateConfig(int index)

@@ -1,25 +1,31 @@
 ﻿using System;
-using System.Windows;
 using System.ComponentModel;
+using System.Windows;
 
 namespace InvisibleManXRay
 {
+    using System.Windows.Media;
+
+    using InvisibleManXRay.Windows;
+
+    using Microsoft.Toolkit.Uwp.Notifications;
+
     using Models;
-    using Values;
+
     using Services;
     using Services.Analytics.General;
     using Services.Analytics.MainWindow;
 
-    public partial class MainWindow : Window
+    using Values;
+
+    public partial class MainWindow : BaseWindow
     {
         private bool isRerunRequest;
-
         private Func<bool> isNeedToShowPolicyWindow;
         private Func<Config> getConfig;
         private Func<Status> loadConfig;
         private Func<Status> enableMode;
         private Func<Status> checkForUpdate;
-        private Func<Status> checkForBroadcast;
         private Func<ServerWindow> openServerWindow;
         private Func<SettingsWindow> openSettingsWindow;
         private Func<UpdateWindow> openUpdateWindow;
@@ -32,11 +38,9 @@ namespace InvisibleManXRay
         private Action onGenerateClientId;
         private Action onGitHubClick;
         private Action onBugReportingClick;
-        private Action<string> onCustomLinkClick;
 
         private BackgroundWorker runWorker;
         private BackgroundWorker updateWorker;
-        private BackgroundWorker broadcastWorker;
 
         private AnalyticsService AnalyticsService => ServiceLocator.Get<AnalyticsService>();
 
@@ -45,16 +49,15 @@ namespace InvisibleManXRay
             InitializeComponent();
             InitializeRunWorker();
             InitializeUpdateWorker();
-            InitializeBroadcastWorker();
 
             updateWorker.RunWorkerAsync();
-            broadcastWorker.RunWorkerAsync();
 
             void InitializeRunWorker()
             {
                 runWorker = new BackgroundWorker();
 
-                runWorker.RunWorkerCompleted += (sender, e) => {
+                runWorker.RunWorkerCompleted += (sender, e) =>
+                {
                     if (isRerunRequest)
                     {
                         runWorker.RunWorkerAsync();
@@ -62,8 +65,10 @@ namespace InvisibleManXRay
                     }
                 };
 
-                runWorker.DoWork += (sender, e) => {
-                    Dispatcher.BeginInvoke(new Action(delegate {
+                runWorker.DoWork += (sender, e) =>
+                {
+                    Dispatcher.BeginInvoke(new Action(delegate
+                    {
                         ShowWaitForRunStatus();
                     }));
 
@@ -71,7 +76,8 @@ namespace InvisibleManXRay
 
                     if (configStatus.Code == Code.ERROR)
                     {
-                        Dispatcher.BeginInvoke(new Action(delegate {
+                        Dispatcher.BeginInvoke(new Action(delegate
+                        {
                             HandleError();
                             ShowStopStatus();
                         }));
@@ -83,24 +89,26 @@ namespace InvisibleManXRay
 
                     if (modeStatus.Code == Code.ERROR)
                     {
-                        Dispatcher.BeginInvoke(new Action(delegate {
+                        Dispatcher.BeginInvoke(new Action(delegate
+                        {
                             MessageBox.Show(
                                 this,
-                                modeStatus.Content.ToString(), 
-                                Caption.ERROR, 
-                                MessageBoxButton.OK, 
+                                modeStatus.Content.ToString(),
+                                Caption.ERROR,
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Error
                             );
                             ShowStopStatus();
                         }));
-                        
+
                         return;
                     }
                     else if (modeStatus.Code == Code.INFO)
                     {
                         if (modeStatus.SubCode == SubCode.CANCELED)
                         {
-                            Dispatcher.BeginInvoke(new Action(delegate {
+                            Dispatcher.BeginInvoke(new Action(delegate
+                            {
                                 ShowStopStatus();
                             }));
 
@@ -108,13 +116,15 @@ namespace InvisibleManXRay
                         }
                     }
 
-                    Dispatcher.BeginInvoke(new Action(delegate {
+                    Dispatcher.BeginInvoke(new Action(delegate
+                    {
                         ShowRunStatus();
                     }));
 
                     onRunServer.Invoke(configStatus.Content.ToString());
 
-                    Dispatcher.BeginInvoke(new Action(delegate {
+                    Dispatcher.BeginInvoke(new Action(delegate
+                    {
                         ShowStopStatus();
                     }));
 
@@ -141,9 +151,9 @@ namespace InvisibleManXRay
                         {
                             MessageBoxResult result = MessageBox.Show(
                                 this,
-                                configStatus.Content.ToString(), 
-                                Caption.WARNING, 
-                                MessageBoxButton.OK, 
+                                configStatus.Content.ToString(),
+                                Caption.WARNING,
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Warning
                             );
 
@@ -155,9 +165,9 @@ namespace InvisibleManXRay
                         {
                             MessageBox.Show(
                                 this,
-                                configStatus.Content.ToString(), 
-                                Caption.ERROR, 
-                                MessageBoxButton.OK, 
+                                configStatus.Content.ToString(),
+                                Caption.ERROR,
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Error
                             );
                         }
@@ -169,30 +179,16 @@ namespace InvisibleManXRay
             {
                 updateWorker = new BackgroundWorker();
 
-                updateWorker.DoWork += (sender, e) => {
+                updateWorker.DoWork += (sender, e) =>
+                {
                     Status updateStatus = checkForUpdate.Invoke();
                     if (IsUpdateAvailable())
-                        Dispatcher.BeginInvoke(new Action(delegate {
+                        Dispatcher.BeginInvoke(new Action(delegate
+                        {
                             notificationUpdate.Visibility = Visibility.Visible;
                         }));
 
                     bool IsUpdateAvailable() => updateStatus.SubCode == SubCode.UPDATE_AVAILABLE;
-                };
-            }
-
-            void InitializeBroadcastWorker()
-            {
-                broadcastWorker = new BackgroundWorker();
-
-                broadcastWorker.DoWork += (sender, e) => {
-                    Status broadcastStatus = checkForBroadcast.Invoke();
-                    if (IsBroadcastAvailable())
-                        Dispatcher.BeginInvoke(new Action(delegate {
-                            barBroadcast.Setup(broadcastStatus.Content as Broadcast, onCustomLinkClick);
-                            barBroadcast.Appear();
-                        }));
-
-                    bool IsBroadcastAvailable() => broadcastStatus.Code == Code.SUCCESS;
                 };
             }
         }
@@ -200,10 +196,9 @@ namespace InvisibleManXRay
         public void Setup(
             Func<bool> isNeedToShowPolicyWindow,
             Func<Config> getConfig,
-            Func<Status> loadConfig, 
+            Func<Status> loadConfig,
             Func<Status> enableMode,
             Func<Status> checkForUpdate,
-            Func<Status> checkForBroadcast,
             Func<ServerWindow> openServerWindow,
             Func<SettingsWindow> openSettingsWindow,
             Func<UpdateWindow> openUpdateWindow,
@@ -222,7 +217,6 @@ namespace InvisibleManXRay
             this.getConfig = getConfig;
             this.loadConfig = loadConfig;
             this.checkForUpdate = checkForUpdate;
-            this.checkForBroadcast = checkForBroadcast;
             this.openServerWindow = openServerWindow;
             this.openSettingsWindow = openSettingsWindow;
             this.openUpdateWindow = openUpdateWindow;
@@ -236,15 +230,14 @@ namespace InvisibleManXRay
             this.onGenerateClientId = onGenerateClientId;
             this.onGitHubClick = onGitHubClick;
             this.onBugReportingClick = onBugReportingClick;
-            this.onCustomLinkClick = onCustomLinkClick;
 
             UpdateUI();
         }
 
         protected override void OnContentRendered(EventArgs e)
         {
-            TryOpenPolicyWindow();
-            AnalyticsService.SendEvent(new AppOpenedEvent());
+            // TryOpenPolicyWindow();
+            // AnalyticsService.SendEvent(new AppOpenedEvent());
         }
 
         public void UpdateUI()
@@ -256,7 +249,7 @@ namespace InvisibleManXRay
                 textServerConfig.Content = Message.NO_SERVER_CONFIGURATION;
                 return;
             }
-            
+
             textServerConfig.Content = config.Name;
         }
 
@@ -264,7 +257,7 @@ namespace InvisibleManXRay
         {
             if (!runWorker.IsBusy)
                 return;
-            
+
             onStopServer.Invoke();
             isRerunRequest = true;
         }
@@ -273,10 +266,29 @@ namespace InvisibleManXRay
         {
             if (!runWorker.IsBusy)
                 return;
-            
+
             onDisableMode.Invoke();
             onStopServer.Invoke();
             isRerunRequest = true;
+        }
+
+        public void Run()
+        {
+            if (runWorker.IsBusy)
+                return;
+
+            runWorker.RunWorkerAsync();
+
+            AnalyticsService.SendEvent(new RunButtonClickedEvent());
+        }
+
+        public void Stop()
+        {
+            onStopServer.Invoke();
+            onDisableMode.Invoke();
+            isRerunRequest = false;
+
+            AnalyticsService.SendEvent(new StopButtonClickedEvent());
         }
 
         private void OnManageServersClick(object sender, RoutedEventArgs e)
@@ -287,19 +299,12 @@ namespace InvisibleManXRay
 
         private void OnRunButtonClick(object sender, RoutedEventArgs e)
         {
-            if (runWorker.IsBusy)
-                return;
-
-            runWorker.RunWorkerAsync();
-            AnalyticsService.SendEvent(new RunButtonClickedEvent());
+            Run();
         }
 
         private void OnStopButtonClick(object sender, RoutedEventArgs e)
         {
-            onStopServer.Invoke();
-            onDisableMode.Invoke();
-            isRerunRequest = false;
-            AnalyticsService.SendEvent(new StopButtonClickedEvent());
+            Stop();
         }
 
         private void OnCancelButtonClick(object sender, RoutedEventArgs e)
@@ -344,7 +349,7 @@ namespace InvisibleManXRay
         {
             if (!isNeedToShowPolicyWindow.Invoke())
                 return;
-            
+
             onGenerateClientId.Invoke();
             AnalyticsService.SendEvent(new NewUserEvent());
 
@@ -390,6 +395,20 @@ namespace InvisibleManXRay
             buttonStop.Visibility = Visibility.Visible;
             buttonCancel.Visibility = Visibility.Hidden;
             buttonRun.Visibility = Visibility.Hidden;
+            notifyWindow.IconSource = FindResource("AppIconOnTray") as ImageSource;
+            ConnectTrayButton.Visibility = Visibility.Collapsed;
+            DisconnectTrayButton.Visibility = Visibility.Visible;
+
+            var config = getConfig();
+            new ToastContentBuilder()
+                .AddArgument("action", "viewConversation")
+                .AddArgument("conversationId", 9813)
+                .AddText($"{config.Name.Replace(".json", "")} Connected")
+                .SetToastDuration(ToastDuration.Short)
+                .Show(toast =>
+                {
+                    toast.ExpirationTime = DateTime.Now.AddSeconds(5);
+                });
         }
 
         private void ShowStopStatus()
@@ -401,6 +420,19 @@ namespace InvisibleManXRay
             buttonRun.Visibility = Visibility.Visible;
             buttonCancel.Visibility = Visibility.Hidden;
             buttonStop.Visibility = Visibility.Hidden;
+            notifyWindow.IconSource = FindResource("AppIconOffTray") as ImageSource;
+            ConnectTrayButton.Visibility = Visibility.Visible;
+            DisconnectTrayButton.Visibility = Visibility.Collapsed;
+
+            new ToastContentBuilder()
+                .AddArgument("action", "viewConversation")
+                .AddArgument("conversationId", 9813)
+                .AddText($"Disconnected")
+                .SetToastDuration(ToastDuration.Short)
+                .Show(toast =>
+                {
+                    toast.ExpirationTime = DateTime.Now.AddSeconds(5);
+                });
         }
 
         private void ShowWaitForRunStatus()
@@ -418,6 +450,19 @@ namespace InvisibleManXRay
         {
             e.Cancel = true;
             this.Hide();
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            onDisableMode();
+            Application.Current.Shutdown();
+        }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            this.Show();
+            Application.Current.MainWindow.WindowState = WindowState.Normal;
+            this.Activate();
         }
     }
 }
