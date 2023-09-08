@@ -73,13 +73,13 @@ namespace InvisibleManXRay
 
         protected override void OnContentRendered(EventArgs e)
         {
-            if (GetLastConfigIndex() == -1)
+            if (getAllConfigs.Invoke().Count == 0)
             {
-                ShowServersPanel();
+                ShowAddServerPanel();             
             }
             else
             {
-                ShowAddServerPanel();
+                ShowServersPanel();
             }
         }
 
