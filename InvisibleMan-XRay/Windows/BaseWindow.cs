@@ -17,7 +17,7 @@ public partial class BaseWindow : MaterialWindow
     {
         Background = this.FindResource("MaterialDesignPaper") as Brush;
         TextElement.SetForeground(this, this.FindResource("MaterialDesignBody") as Brush);
-        FontFamily = FindResource("SegoeUI") as FontFamily;
+        FontFamily = FindResource("MaterialDesignFont") as FontFamily;
         TextElement.SetFontWeight(this, FontWeights.Medium);
     }
 }

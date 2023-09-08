@@ -23,6 +23,8 @@ namespace InvisibleManXRay.Handlers
 
         public Status CheckForUpdate()
         {
+            return new Status(Code.SUCCESS, SubCode.UPDATE_UNAVAILABLE, Message.YOU_HAVE_LATEST_VERSION);
+
             string latestReleaseUrl = GetLatestReleaseUrl();
             string latestReleaseVersion = GetLatestReleaseVersion(latestReleaseUrl);
             if (latestReleaseVersion == null)

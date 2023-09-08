@@ -26,7 +26,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="Button.Rectangle.Green" TargetType="Button">
+    <Style x:Key="Button.Rectangle.Green" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>

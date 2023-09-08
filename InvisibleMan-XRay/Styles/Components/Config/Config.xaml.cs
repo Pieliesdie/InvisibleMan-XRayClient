@@ -10,6 +10,7 @@ namespace InvisibleManXRay.Components
     using Values;
     using Services;
     using Services.Analytics.Configuration;
+    using CustomMessageBox;
 
     public partial class Config : UserControl
     {
@@ -92,7 +93,7 @@ namespace InvisibleManXRay.Components
 
             if (!File.Exists(config.Path))
             {
-                MessageBox.Show(
+                MessageBoxCustom.Show(
                     getServerWindow.Invoke(),
                     Message.FILE_DOESNT_EXISTS,
                     Caption.ERROR,
@@ -117,7 +118,7 @@ namespace InvisibleManXRay.Components
         {
             AnalyticsService.SendEvent(new DeleteButtonClickedEvent());
 
-            MessageBoxResult result = MessageBox.Show(
+            var result = MessageBoxCustom.Show(
                 getServerWindow.Invoke(),
                 string.Format(Message.DELETE_CONFIRMATION, config.Name),
                 Caption.INFO,
@@ -125,7 +126,7 @@ namespace InvisibleManXRay.Components
                 MessageBoxImage.Question
             );
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
                 DeleteFile();
             
             void DeleteFile()
@@ -136,7 +137,7 @@ namespace InvisibleManXRay.Components
                 }
                 catch(Exception ex)
                 {
-                    MessageBox.Show(getServerWindow.Invoke(), ex.Message);
+                    MessageBoxCustom.Show(getServerWindow.Invoke(), ex.Message);
                 }
                 finally
                 {
@@ -169,7 +170,7 @@ namespace InvisibleManXRay.Components
 
             void HandleNoLogMessage()
             {
-                MessageBox.Show(
+                MessageBoxCustom.Show(
                     getServerWindow.Invoke(),
                     Message.NO_LOG_FILE,
                     Caption.INFO,

@@ -10,6 +10,8 @@ namespace InvisibleManXRay
     using Services;
     using Services.Analytics.ServerWindow;
     using InvisibleManXRay.Windows;
+    using CustomMessageBox;
+    using System.Linq;
 
     public partial class ServerWindow : BaseWindow
     {
@@ -71,7 +73,14 @@ namespace InvisibleManXRay
 
         protected override void OnContentRendered(EventArgs e)
         {
-            ShowServersPanel();
+            if (GetLastConfigIndex() == -1)
+            {
+                ShowServersPanel();
+            }
+            else
+            {
+                ShowAddServerPanel();
+            }
         }
 
         private void OnAddButtonClick(object sender, RoutedEventArgs e)
@@ -145,7 +154,7 @@ namespace InvisibleManXRay
             {
                 if (!IsFileSelected())
                 {
-                    MessageBox.Show(
+                    MessageBoxCustom.Show(
                         this,
                         Values.Message.NO_FILES_SELECTED, 
                         Values.Caption.WARNING, 
@@ -165,7 +174,7 @@ namespace InvisibleManXRay
             {
                 if (!IsLinkEntered())
                 {
-                    MessageBox.Show(
+                    MessageBoxCustom.Show(
                         this,
                         Values.Message.NO_LINK_ENTERED, 
                         Values.Caption.WARNING, 
@@ -246,7 +255,7 @@ namespace InvisibleManXRay
 
                     void HandleWarningMessage()
                     {
-                        MessageBoxResult result = MessageBox.Show(
+                        MessageBoxCustom.Show(
                             this,
                             configStatus.Content.ToString(), 
                             Caption.WARNING, 
@@ -257,7 +266,7 @@ namespace InvisibleManXRay
 
                     void HandleErrorMessage()
                     {
-                        MessageBox.Show(
+                        MessageBoxCustom.Show(
                             this,
                             configStatus.Content.ToString(), 
                             Caption.ERROR, 

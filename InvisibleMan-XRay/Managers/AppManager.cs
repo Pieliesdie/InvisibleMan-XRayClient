@@ -7,6 +7,7 @@ namespace InvisibleManXRay.Managers
     using Initializers;
     using Factories;
     using Values;
+    using CustomMessageBox;
 
     public class AppManager
     {
@@ -42,7 +43,7 @@ namespace InvisibleManXRay.Managers
             
             if(!isCreatedNew)
             {
-                MessageBox.Show(Message.APP_ALREADY_RUNNING);
+                MessageBoxCustom.Show(Message.APP_ALREADY_RUNNING);
                 Application.Current.Shutdown();
             }
         }

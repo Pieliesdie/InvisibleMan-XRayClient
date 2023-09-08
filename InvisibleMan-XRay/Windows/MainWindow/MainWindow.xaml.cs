@@ -6,7 +6,13 @@ namespace InvisibleManXRay
 {
     using System.Windows.Media;
 
+    using BespokeFusion;
+
+    using CustomMessageBox;
+
     using InvisibleManXRay.Windows;
+
+    using MaterialDesignThemes.Wpf;
 
     using Microsoft.Toolkit.Uwp.Notifications;
 
@@ -79,7 +85,7 @@ namespace InvisibleManXRay
                         Dispatcher.BeginInvoke(new Action(delegate
                         {
                             HandleError();
-                            ShowStopStatus();
+                            ShowStopStatus(false);
                         }));
 
                         return;
@@ -91,7 +97,7 @@ namespace InvisibleManXRay
                     {
                         Dispatcher.BeginInvoke(new Action(delegate
                         {
-                            MessageBox.Show(
+                            MessageBoxCustom.Show(
                                 this,
                                 modeStatus.Content.ToString(),
                                 Caption.ERROR,
@@ -149,21 +155,20 @@ namespace InvisibleManXRay
 
                         void HandleNoConfigError()
                         {
-                            MessageBoxResult result = MessageBox.Show(
+                            var result = MessageBoxCustom.Show(
                                 this,
                                 configStatus.Content.ToString(),
-                                Caption.WARNING,
+                                "",
                                 MessageBoxButton.OK,
-                                MessageBoxImage.Warning
-                            );
+                                MessageBoxImage.Warning);
 
-                            if (result == MessageBoxResult.OK)
+                            if (result == true)
                                 OpenServerWindow();
                         }
 
                         void HandleInvalidConfigError()
                         {
-                            MessageBox.Show(
+                            MessageBoxCustom.Show(
                                 this,
                                 configStatus.Content.ToString(),
                                 Caption.ERROR,
@@ -360,16 +365,20 @@ namespace InvisibleManXRay
 
         private void OpenServerWindow()
         {
+            this.Hide();
             ServerWindow serverWindow = openServerWindow.Invoke();
             serverWindow.Owner = this;
             serverWindow.ShowDialog();
+            this.Show();
         }
 
         private void OpenSettingsWindow()
         {
+            this.Hide();
             SettingsWindow settingsWindow = openSettingsWindow.Invoke();
             settingsWindow.Owner = this;
             settingsWindow.ShowDialog();
+            this.Show();
         }
 
         private void OpenUpdateWindow()
@@ -399,11 +408,12 @@ namespace InvisibleManXRay
             ConnectTrayButton.Visibility = Visibility.Collapsed;
             DisconnectTrayButton.Visibility = Visibility.Visible;
 
+            ToastNotificationManagerCompat.History.Clear();
             var config = getConfig();
             new ToastContentBuilder()
                 .AddArgument("action", "viewConversation")
                 .AddArgument("conversationId", 9813)
-                .AddText($"{config.Name.Replace(".json", "")} Connected")
+                .AddText($"{config.Name.Replace(".json", "")} - connected")
                 .SetToastDuration(ToastDuration.Short)
                 .Show(toast =>
                 {
@@ -411,7 +421,7 @@ namespace InvisibleManXRay
                 });
         }
 
-        private void ShowStopStatus()
+        private void ShowStopStatus(bool disconnected = true)
         {
             statusStop.Visibility = Visibility.Visible;
             statusRun.Visibility = Visibility.Hidden;
@@ -424,15 +434,19 @@ namespace InvisibleManXRay
             ConnectTrayButton.Visibility = Visibility.Visible;
             DisconnectTrayButton.Visibility = Visibility.Collapsed;
 
-            new ToastContentBuilder()
-                .AddArgument("action", "viewConversation")
-                .AddArgument("conversationId", 9813)
-                .AddText($"Disconnected")
-                .SetToastDuration(ToastDuration.Short)
-                .Show(toast =>
-                {
-                    toast.ExpirationTime = DateTime.Now.AddSeconds(5);
-                });
+            if (disconnected)
+            {
+                ToastNotificationManagerCompat.History.Clear();
+                new ToastContentBuilder()
+                    .AddArgument("action", "viewConversation")
+                    .AddArgument("conversationId", 9813)
+                    .AddText($"Disconnected")
+                    .SetToastDuration(ToastDuration.Short)
+                    .Show(toast =>
+                    {
+                        toast.ExpirationTime = DateTime.Now.AddSeconds(5);
+                    });
+            }
         }
 
         private void ShowWaitForRunStatus()

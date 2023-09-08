@@ -11,6 +11,7 @@
     xmlns:windows="clr-namespace:InvisibleManXRay.Windows"
     Width="300"
     Height="450"
+    Icon="{StaticResource AppIconOffTray}"
     ResizeMode="CanMinimize"
     WindowStartupLocation="CenterScreen"
     WindowStyle="ToolWindow"
@@ -19,6 +20,7 @@
         <tb:TaskbarIcon
             Name="notifyWindow"
             IconSource="{StaticResource AppIconOffTray}"
+            MenuActivation="LeftOrRightClick"
             TrayMouseDoubleClick="Open_Click">
             <!--  Set a simple context menu  -->
             <tb:TaskbarIcon.ContextMenu>
