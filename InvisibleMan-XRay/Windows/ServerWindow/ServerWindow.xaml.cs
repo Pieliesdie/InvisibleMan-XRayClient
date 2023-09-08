@@ -238,6 +238,9 @@ namespace InvisibleManXRay
                 ClearConfigLink();
                 ShowServersPanel();
 
+                if (getAllConfigs().Count == 1)
+                    this.Close();
+
                 void HandleError()
                 {
                     switch (configStatus.SubCode)
