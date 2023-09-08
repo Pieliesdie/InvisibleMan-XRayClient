@@ -1,11 +1,8 @@
+# just wanted a more serious interface without "hacker" icons
+
 # Invisible Man - XRay Client
 
 > A client for xray core
-
-[![Downloads](https://img.shields.io/github/downloads/invisiblemanvpn/InvisibleMan-XRayClient/total.svg?label=downloads%20%28total%29)](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/releases)
-[![DownloadsLatest](https://img.shields.io/github/downloads/InvisibleManVPN/InvisibleMan-XRayClient/latest/total?label=downloads%20%28latest%29)](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/releases/latest)
-[![LatestVersion](https://img.shields.io/github/v/release/invisiblemanvpn/InvisibleMan-XRayClient?label=latest%20version)](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/releases/latest)
-[![CodeFactor](https://www.codefactor.io/repository/github/invisiblemanvpn/InvisibleMan-XRayClient/badge)](https://www.codefactor.io/repository/github/invisiblemanvpn/InvisibleMan-XRayClient)
 
 Invisible Man XRay is an open-source and free client that supports [xray core](https://github.com/XTLS/Xray-core). It provides an easy-to-use interface to configure and manage proxies and allows users to switch between different server locations.
 
@@ -52,40 +49,3 @@ Invisible Man XRay is an open-source and free client that supports [xray core](h
 - Go https://go.dev/dl/
 - .Net https://dotnet.microsoft.com/download
 - Curl https://curl.se/download.html
-
-## Contributing
-
-You can help this project by reporting problems, suggestions or contributing to the code.
-
-### Report a problem or suggestion
-
-Go to our [Issue tracker](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/issues) and check if your problem/suggestion is already reported. If not, create a new issue with a descriptive title and detail your suggestion or steps to reproduce the problem.
-
-### Contribute to the code
-
-If you know how to code, we welcome you to send fixes and new features!
-
-## Donation
-
-Please consider donating to support and sustain our activities.
-
-- **BITCOIN:** 
-
-   ![Bitcoin Wallet](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/blob/master/Images/bitcoin-wallet.png)
-
-   ```
-   bc1qy6a47vrygqf4x5dwpcm7wnamgn2gxxwn32w807
-   ```
-
-- **ETHEREUM:**
-
-   ![Ethereum Wallet](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/blob/master/Images/ethereum-wallet.png)
-
-   ```
-   0x8cad02de7dd61237Fdf6B98589e15e1a59C54849
-   ```
-
-## Contacts
-
-- Web [invisiblemanvpn.github.io](https://invisiblemanvpn.github.io)
-- Email [invisiblemanvpn@gmail.com](mailto:invisiblemanvpn@gmail.com)
