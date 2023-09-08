@@ -6,8 +6,9 @@
 
 Invisible Man XRay is an open-source and free client that supports [xray core](https://github.com/XTLS/Xray-core). It provides an easy-to-use interface to configure and manage proxies and allows users to switch between different server locations.
 
-![Image1](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/blob/master/Images/image-1.png)
-![Image2](https://github.com/InvisibleManVPN/InvisibleMan-XRayClient/blob/master/Images/image-2.png)
+![image](https://github.com/Pieliesdie/InvisibleMan-XRayClient/assets/43798400/035ae423-af8f-4650-bcc8-5cbe4fcf5e1c)
+
+![image](https://github.com/Pieliesdie/InvisibleMan-XRayClient/assets/43798400/8c0794da-278e-4260-82c9-45796de3b538)
 
 ## Getting started
 
