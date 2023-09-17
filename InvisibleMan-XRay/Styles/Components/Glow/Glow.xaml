@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="160"
     d:DesignWidth="160"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <Storyboard x:Key="animationGlow" RepeatBehavior="Forever">
@@ -31,8 +32,8 @@
     <Grid>
         <Ellipse
             x:Name="ellipse"
-            Width="50"
-            Height="50"
+            Width="{Binding GlowWidth}"
+            Height="{Binding GlowHeight}"
             Fill="{StaticResource Color.Blue}"
             RenderTransformOrigin="0.5,0.5">
             <Ellipse.RenderTransform>

@@ -4,13 +4,21 @@ using System.Windows;
 
 namespace InvisibleManXRay
 {
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.NetworkInformation;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Media;
-
-    using BespokeFusion;
 
     using CustomMessageBox;
 
     using InvisibleManXRay.Windows;
+
+    using LiveChartsCore;
+    using LiveChartsCore.SkiaSharpView;
 
     using MaterialDesignThemes.Wpf;
 
@@ -27,7 +35,6 @@ namespace InvisibleManXRay
     public partial class MainWindow : BaseWindow
     {
         private bool isRerunRequest;
-        private Func<bool> isNeedToShowPolicyWindow;
         private Func<Config> getConfig;
         private Func<Status> loadConfig;
         private Func<Status> enableMode;
@@ -36,19 +43,22 @@ namespace InvisibleManXRay
         private Func<SettingsWindow> openSettingsWindow;
         private Func<UpdateWindow> openUpdateWindow;
         private Func<AboutWindow> openAboutWindow;
-        private Func<PolicyWindow> openPolicyWindow;
         private Action<string> onRunServer;
         private Action onCancelServer;
         private Action onStopServer;
         private Action onDisableMode;
-        private Action onGenerateClientId;
         private Action onGitHubClick;
         private Action onBugReportingClick;
 
         private BackgroundWorker runWorker;
         private BackgroundWorker updateWorker;
+        private static NetworkInterface NetworkInterface => NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(n => n.Name.Contains("XRay"));
+        private static AnalyticsService AnalyticsService => ServiceLocator.Get<AnalyticsService>();
 
-        private AnalyticsService AnalyticsService => ServiceLocator.Get<AnalyticsService>();
+        public List<float> DownloadSpeedSeries { get; set; } = new();
+        public List<float> UploadSpeedSeries { get; set; } = new();
+
+        public ObservableCollection<ISeries> SpeedSeries { get; set; }
 
         public MainWindow()
         {
@@ -150,9 +160,11 @@ namespace InvisibleManXRay
                             default:
                                 return;
                         }
-
+#if DEBUG
+                        bool IsAnotherWindowOpened() => Application.Current.Windows.Count > 2;
+#else
                         bool IsAnotherWindowOpened() => Application.Current.Windows.Count > 1;
-
+#endif
                         void HandleNoConfigError()
                         {
                             var result = MessageBoxCustom.Show(
@@ -164,6 +176,13 @@ namespace InvisibleManXRay
 
                             if (result == true)
                                 OpenServerWindow();
+
+                            var config = getConfig();
+                            if (config != null)
+                            {
+                                Run();
+                            }
+
                         }
 
                         void HandleInvalidConfigError()
@@ -218,7 +237,6 @@ namespace InvisibleManXRay
             Action onBugReportingClick,
             Action<string> onCustomLinkClick)
         {
-            this.isNeedToShowPolicyWindow = isNeedToShowPolicyWindow;
             this.getConfig = getConfig;
             this.loadConfig = loadConfig;
             this.checkForUpdate = checkForUpdate;
@@ -226,23 +244,15 @@ namespace InvisibleManXRay
             this.openSettingsWindow = openSettingsWindow;
             this.openUpdateWindow = openUpdateWindow;
             this.openAboutWindow = openAboutWindow;
-            this.openPolicyWindow = openPolicyWindow;
             this.onRunServer = onRunServer;
             this.onCancelServer = onCancelServer;
             this.onStopServer = onStopServer;
             this.enableMode = enableMode;
             this.onDisableMode = onDisableMode;
-            this.onGenerateClientId = onGenerateClientId;
             this.onGitHubClick = onGitHubClick;
             this.onBugReportingClick = onBugReportingClick;
 
             UpdateUI();
-        }
-
-        protected override void OnContentRendered(EventArgs e)
-        {
-            // TryOpenPolicyWindow();
-            // AnalyticsService.SendEvent(new AppOpenedEvent());
         }
 
         public void UpdateUI()
@@ -251,11 +261,11 @@ namespace InvisibleManXRay
 
             if (config == null)
             {
-                textServerConfig.Content = Message.NO_SERVER_CONFIGURATION;
+                textServerConfig.Text = Message.NO_SERVER_CONFIGURATION;
                 return;
             }
 
-            textServerConfig.Content = config.Name;
+            textServerConfig.Text = config.Name;
         }
 
         public void TryRerun()
@@ -350,19 +360,6 @@ namespace InvisibleManXRay
             AnalyticsService.SendEvent(new AboutButtonClickedEvent());
         }
 
-        private void TryOpenPolicyWindow()
-        {
-            if (!isNeedToShowPolicyWindow.Invoke())
-                return;
-
-            onGenerateClientId.Invoke();
-            AnalyticsService.SendEvent(new NewUserEvent());
-
-            PolicyWindow policyWindow = openPolicyWindow.Invoke();
-            policyWindow.Owner = this;
-            policyWindow.ShowDialog();
-        }
-
         private void OpenServerWindow()
         {
             this.Hide();
@@ -394,7 +391,8 @@ namespace InvisibleManXRay
             aboutWindow.Owner = this;
             aboutWindow.ShowDialog();
         }
-
+        CancellationTokenSource chartCancellationTokenSource = new();
+        CancellationToken chartToken;
         private void ShowRunStatus()
         {
             statusRun.Visibility = Visibility.Visible;
@@ -419,6 +417,56 @@ namespace InvisibleManXRay
                 {
                     toast.ExpirationTime = DateTime.Now.AddSeconds(5);
                 });
+            chartCancellationTokenSource.Cancel();
+            chartCancellationTokenSource = new();
+            chartToken = chartCancellationTokenSource.Token;
+            var task = Task.Run(async () =>
+            {
+                var retryCount = 5;
+                while (NetworkInterface is null)
+                {
+                    await Task.Delay(1000);
+
+                    retryCount--;
+                    if (retryCount == 0)
+                        return;
+                }
+                SpeedSeries = new ObservableCollection<ISeries>()
+                {
+                    new LineSeries<float>()
+                    {
+                        Values = DownloadSpeedSeries,
+                        Fill = null, GeometryFill = null, GeometryStroke = null
+                    },
+                    new LineSeries<float>()
+                    {
+                        Values = UploadSpeedSeries,
+                        Fill = null, GeometryFill = null, GeometryStroke = null
+                    }
+                };
+                var nic = NetworkInterface;
+                var reads = Enumerable.Empty<double>();
+                var sw = new Stopwatch();
+                var lastBr = nic.GetIPv4Statistics().BytesReceived;
+                while (true)
+                {
+                    if (chartToken.IsCancellationRequested) break;
+                    sw.Restart();
+                    await Task.Delay(1000);
+                    var elapsed = sw.Elapsed.TotalSeconds;
+                    var br = nic.GetIPv4Statistics().BytesReceived;
+
+                    var local = (br - lastBr) / elapsed;
+                    lastBr = br;
+
+                    // Keep last 20, ~2 seconds
+                    reads = new[] { local }.Concat(reads).Take(20);
+
+                    var bSec = reads.Sum() / reads.Count();
+                    var kbs = (bSec * 8) / 1024;
+                    DownloadSpeedSeries.Add((float)kbs);
+                }
+            }, chartToken);
         }
 
         private void ShowStopStatus(bool disconnected = true)

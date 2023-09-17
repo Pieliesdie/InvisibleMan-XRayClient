@@ -16,21 +16,25 @@
 		<PublishSingleFile>true</PublishSingleFile>
 		<_SuppressWpfTrimError>true</_SuppressWpfTrimError>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>partial</TrimMode>
 		<ApplicationIcon>Assets\icon.ico</ApplicationIcon>
 		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
 	</PropertyGroup>
+	
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-beta.950" />
 		<PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
 		<PackageReference Include="NetCore5.0.Microsoft.Expression.Drawing" Version="1.0.0" />
 		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
-		<PackageReference Include="MaterialDesignExtensions" Version="3.3.0" />
+		<PackageReference Include="MaterialDesignExtensions" Version="4.0.0-a02" />
 		<PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
-		<PackageReference Include="System.Management" Version="7.0.2" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0-rc.1.23419.5" />
+		<PackageReference Include="System.Management" Version="8.0.0-rc.1.23419.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -44,12 +48,29 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="TUN\InvisibleMan-TUN.exe">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="TUN\tun.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="TUN\tun2socks.exe">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="TUN\wintun.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Resource Include="Assets\icon-connected.ico" />
 		<Resource Include="Assets\icon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Styles\Components\Loading\" />
+	  <Content Update="Libraries\XRayCore.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>
